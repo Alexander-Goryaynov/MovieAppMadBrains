@@ -1,8 +1,8 @@
 package com.example.movieapp
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -18,8 +18,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, FavoriteMovieActivity::class.java)
             startActivity(intent)
         }
+        listButton.setOnClickListener{
+            val intent = Intent(this, ListActivity::class.java)
+            startActivity(intent)
+        }
         exitButton.setOnClickListener{
             finish()
         }
+
     }
 }
