@@ -1,6 +1,8 @@
 package com.example.movieapp
 
-data class Cat(
-    val text: String,
-    val image: String
-)
+import io.realm.RealmObject
+
+open class Cat: RealmObject() {
+    lateinit var text: String
+    lateinit var image: String
+}

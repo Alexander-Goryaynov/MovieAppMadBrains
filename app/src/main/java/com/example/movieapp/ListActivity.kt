@@ -9,6 +9,8 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import kotlinx.android.synthetic.main.activity_list.*
 import org.json.JSONArray
 
@@ -22,11 +24,34 @@ class ListActivity : AppCompatActivity() {
         title = "Список"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val queue = Volley.newRequestQueue(this)
+        initRealm()
         getCatsFromServer(queue)
+        showListFromDatabase()
     }
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return super.onSupportNavigateUp()
+    }
+    private fun initRealm(){
+        Realm.init(this)
+        val config = RealmConfiguration.Builder()
+            .deleteRealmIfMigrationNeeded()
+            .build()
+        Realm.setDefaultConfiguration(config)
+    }
+    private fun saveIntoDatabase(cats: List<Cat>){
+        val realm = Realm.getDefaultInstance()
+        realm.beginTransaction()
+        realm.copyToRealm(cats)
+        realm.commitTransaction()
+    }
+    private fun loadFromDatabase(): List<Cat>{
+        val realm = Realm.getDefaultInstance()
+        return realm.where(Cat::class.java).findAll()
+    }
+    private fun showListFromDatabase(){
+        val cats = loadFromDatabase()
+        setList(cats)
     }
     fun getCatsFromServer(queue: RequestQueue){
         val stringRequest = StringRequest(
@@ -34,7 +59,8 @@ class ListActivity : AppCompatActivity() {
             url,
             Response.Listener { response ->
                 val catsList = parseResponse(response)
-                setList(catsList)
+                saveIntoDatabase(catsList)
+                showListFromDatabase()
             },
             Response.ErrorListener {
                 Toast.makeText(this, "Ошибка запроса",
@@ -50,7 +76,9 @@ class ListActivity : AppCompatActivity() {
             val jsonObject = jsonArray.getJSONObject(index)
             val catText = jsonObject.getString("text")
             val catImage = jsonObject.getString("image")
-            val cat = Cat(catText, catImage)
+            val cat = Cat()
+            cat.text = catText
+            cat.image = catImage
             catList.add(cat)
         }
         return catList
