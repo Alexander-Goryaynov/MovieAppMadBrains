@@ -28,10 +28,12 @@ class ListActivity : AppCompatActivity() {
         getCatsFromServer(queue)
         showListFromDatabase()
     }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return super.onSupportNavigateUp()
     }
+
     private fun initRealm(){
         Realm.init(this)
         val config = RealmConfiguration.Builder()
@@ -39,20 +41,24 @@ class ListActivity : AppCompatActivity() {
             .build()
         Realm.setDefaultConfiguration(config)
     }
+
     private fun saveIntoDatabase(cats: List<Cat>){
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
         realm.copyToRealm(cats)
         realm.commitTransaction()
     }
+
     private fun loadFromDatabase(): List<Cat>{
         val realm = Realm.getDefaultInstance()
         return realm.where(Cat::class.java).findAll()
     }
+
     private fun showListFromDatabase(){
         val cats = loadFromDatabase()
         setList(cats)
     }
+
     fun getCatsFromServer(queue: RequestQueue){
         val stringRequest = StringRequest(
             Request.Method.GET,
@@ -69,6 +75,7 @@ class ListActivity : AppCompatActivity() {
         )
         queue.add(stringRequest)
     }
+
     private fun parseResponse(responseText: String) : List<Cat>{
         val catList: MutableList<Cat> = mutableListOf()
         val jsonArray = JSONArray(responseText)
@@ -83,6 +90,7 @@ class ListActivity : AppCompatActivity() {
         }
         return catList
     }
+
     private fun setList(cats: List<Cat>){
         recyclerId.adapter = CatAdapter(cats)
         recyclerId.layoutManager = LinearLayoutManager(this)
